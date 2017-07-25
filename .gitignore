@@ -19,3 +19,8 @@
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+.idea/Autocomplete.iml
+.idea/inspectionProfiles/
+.idea/modules.xml
+.idea/workspace.xml
+package-lock.json
