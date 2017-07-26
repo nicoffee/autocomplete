@@ -25,15 +25,17 @@ class ComboBox extends Component {
         let cities = this.state.cities.map((city, idx) => <li key={idx}>{city.City}</li>);
 
         return (
-          <div>
+          <div className="select">
               <input
                 placeholder="Введите или выберите из списка"
                 ref={(input) => { this.textInput = input; }}
                 type="text"
               />
-              <ul>
-                  {cities}
-              </ul>
+              <div className="select__menu">
+                  <ul>
+                      {cities}
+                  </ul>
+              </div>
           </div>
         );
     }

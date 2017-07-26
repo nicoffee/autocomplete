@@ -13,7 +13,7 @@ body {
 
 input {
     min-height: 32px;
-    min-width: 280px;
+    width: 280px;
     padding-left: 8px;
     padding-right: 27px;
     position: relative;
@@ -24,6 +24,20 @@ input {
     box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(0, 0, 0, 0.05);
 }
 
+ul {
+    text-align: left;
+}
+
+ul li {
+    list-style: none;
+    line-height: 24px;
+}
+
+ul li:hover {
+    color: #fff;
+    background: #5199DB;
+}
+
 input:focus {
     outline: none;
     box-shadow: 0 0 0 2px #5199db, inset 0 1px 0 0 rgba(0, 0, 0, 0.05);
@@ -31,4 +45,17 @@ input:focus {
 
 .App {
     text-align: center;
+}
+
+.select {
+    display: flex;
+    flex-direction: column;
+}
+
+.select__menu {
+    width: 357px;
+    max-height: 500px;
+    background: #FFFFFF;
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 3px 10px 0 rgba(0,0,0,0.2);
+    overflow: scroll;
 }
