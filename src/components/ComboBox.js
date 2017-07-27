@@ -1,10 +1,14 @@
 import React, { Component } from 'react'
-// import Input from './Input'
-import citys from './kladr.json'
+import kladr from './kladr.json'
 
-let cities = citys.slice(1, 10);
+let cities = kladr.slice(1, 10);
 
-const ListItem = (props) => { console.log('props.key', props); console.log('props.focusedId.key', props.focusedId) ;return (+props.key === props.focusedId) ? <li><b>{props.children}</b></li> : <li><i>{props.children}</i></li>};
+const ListItem = (props) => (
+    (+props.idx === props.focusedId) ?
+    <li><b>{props.children}</b></li> :
+    <li><i>{props.children}</i></li>
+);
+
 const List = (props) => <ul>{props.children}</ul>;
 
 class ComboBox extends Component {
@@ -38,16 +42,29 @@ class ComboBox extends Component {
         }, true);
 
         this.textInput.addEventListener('keydown', (e) => {
-            console.log('keypress', e);
+            console.log(e.keyCode);
 
-            if (e.keyCode === 40) {
-                this.setState({
-                    focusedElementId: this.state.focusedElementId + 1
-                });
+            switch (e.keyCode) {
+                case 40:
+                    if (this.state.focusedElementId < cities.length - 1) {
+                        this.setState({
+                            focusedElementId: this.state.focusedElementId + 1
+                        });
+                    };
+                    break;
+                case 38:
+                    if (this.state.focusedElementId > 0) {
+                        this.setState({
+                            focusedElementId: this.state.focusedElementId -1
+                        });
+                        break;
+                    }
+            }
+
+            if (e.keyCode === 13) {
+                e.target.value = this.state.cities[this.state.focusedElementId].City;
             }
         }, true);
-
-        console.log('this.toggleListBtn', this.toggleListBtn);
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -66,11 +83,11 @@ class ComboBox extends Component {
 
     render() {
         let cities = this.state.cities.map(
-          (city, idx) => <ListItem key={idx} focusedId={this.state.focusedElementId}>{city.City}</ListItem>
+          (city, idx) => <ListItem key={idx} idx={idx} focusedId={this.state.focusedElementId}>{city.City}</ListItem>
         );
 
         return (
-          <div className="select__input">
+          <div className="autocomplete">
               <div className="input-wrapper">
                   <input
                     placeholder="Введите или выберите из списка"
@@ -81,12 +98,14 @@ class ComboBox extends Component {
                     className="select__toggle"
                     onClick={this.toggleList.bind(this)}
                   >
-                      <svg xmlns="http://www.w3.org/2000/svg" width="404.308" height="404.309" viewBox="0 0 404.308 404.309"><path d="M0 101.08h404.308l-202.157 202.149-202.151-202.149z"/></svg>
+                      <svg xmlns="http://www.w3.org/2000/svg" width="20.308" height="20.309" viewBox="0 0 404.308 404.309"><path d="M0 101.08h404.308l-202.157 202.149-202.151-202.149z"/></svg>
                   </button>
               </div>
               <div
                 className="select__menu"
-                style={{ display: (this.state.listVisible) ? 'block' : 'none'}}
+                style={
+                    { display: (this.state.listVisible) ? 'block' : 'none'}
+                }
               >
               <List id={this.state.focusedElementId}>
                   {cities}
