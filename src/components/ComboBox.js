@@ -4,19 +4,12 @@ import kladr from './kladr.json'
 let cities = kladr.slice(1, 10);
 
 const ListItem = (props) => {
-    if (!props.children) {
-        return <li>Не найдено</li>
-    }
-
     return (+props.idx === props.focusedId) ?
         <li><b>{props.children}</b></li> :
         <li><i>{props.children}</i></li>
 };
 
 const List = (props) => {
-    console.log('!props.children', props.children);
-    console.log('!props.children', !props.children.length);
-
     if (!props.children.length) {
         return <ul><li>Не найдено</li></ul>;
     }
@@ -30,7 +23,8 @@ class ComboBox extends Component {
         this.state = {
             cities: cities,
             listVisible: false,
-            focusedElementId: -1
+            focusedElementId: -1,
+            error: false
         };
     }
 
@@ -49,16 +43,30 @@ class ComboBox extends Component {
             const reg = new RegExp(e.target.value, 'i');
             const citiesList = cities.filter((city, idx) => reg.test(city.City));
 
-            this.setState({
-                cities: citiesList,
-                listVisible: true,
-                focusedElementId: 0
-            });
+            console.log(citiesList);
+
+            //if (citiesList.length) {
+                this.setState({
+                    cities: citiesList,
+                    listVisible: true,
+                    focusedElementId: 0,
+                    error: false
+                });
+            //}
+
+
         }, true);
 
-        this.textInput.addEventListener('keydown', (e) => {
-            console.log(e.keyCode);
+        this.textInput.onblur = () => {
+            if (!this.state.cities.length) {
+                this.setState({
+                    listVisible: false,
+                    error: true
+                });
+            }
+        }
 
+        this.textInput.addEventListener('keydown', (e) => {
             switch (e.keyCode) {
                 case 40:
                     if (this.state.focusedElementId < cities.length - 1) {
@@ -107,6 +115,7 @@ class ComboBox extends Component {
                   <input
                     placeholder="Введите или выберите из списка"
                     ref={(input) => { this.textInput = input; }}
+                    className={(this.state.error) ? 'error' : ''}
                     type="text"
                   />
                   <button
