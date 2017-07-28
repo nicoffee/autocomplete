@@ -3,13 +3,26 @@ import kladr from './kladr.json'
 
 let cities = kladr.slice(1, 10);
 
-const ListItem = (props) => (
-    (+props.idx === props.focusedId) ?
-    <li><b>{props.children}</b></li> :
-    <li><i>{props.children}</i></li>
-);
+const ListItem = (props) => {
+    if (!props.children) {
+        return <li>Не найдено</li>
+    }
 
-const List = (props) => <ul>{props.children}</ul>;
+    return (+props.idx === props.focusedId) ?
+        <li><b>{props.children}</b></li> :
+        <li><i>{props.children}</i></li>
+};
+
+const List = (props) => {
+    console.log('!props.children', props.children);
+    console.log('!props.children', !props.children.length);
+
+    if (!props.children.length) {
+        return <ul><li>Не найдено</li></ul>;
+    }
+
+    return <ul>{props.children}</ul>;
+}
 
 class ComboBox extends Component {
     constructor() {
@@ -37,7 +50,9 @@ class ComboBox extends Component {
             const citiesList = cities.filter((city, idx) => reg.test(city.City));
 
             this.setState({
-                cities: citiesList
+                cities: citiesList,
+                listVisible: true,
+                focusedElementId: 0
             });
         }, true);
 
