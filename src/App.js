@@ -8,6 +8,7 @@ class App extends Component {
     return (
       <div className="App">
           <ComboBox />
+          <input type="text" />
       </div>
     );
   }
