@@ -1,22 +1,46 @@
 import React, {Component} from 'react'
-import kladr from './kladr.json'
-
-//let cities = kladr.slice(1, 10);
 
 const ListItem = (props) => {
     return (+props.idx === props.focusedId) ?
-        <li><b>{props.children}</b></li> :
-        <li><i>{props.children}</i></li>
+        <li className="focused" onClick={props.onClick}>
+            {props.children}
+        </li> : <li onClick={props.onClick}>
+            {props.children}
+        </li>
 };
 
-const List = (props) => {
-    if (!props.children.length) {
-        return <ul>
-            <li>Не найдено</li>
-        </ul>;
+class List extends Component {
+    constructor(props) {
+        super(props);
     }
 
-    return <ul>{props.children}</ul>;
+    handleClick(e) {
+        console.log('click', e);
+    }
+
+    render() {
+        let cities = this.props.cities.map(
+            (city, idx) =>
+                <ListItem
+                    key={idx}
+                    idx={idx}
+                    focusedId={this.props.id}
+                    onClick={(e) => this.handleClick}
+                >
+                    {city.City}
+                </ListItem>
+        );
+
+        if (!this.props.cities.length) {
+            return (
+                <ul>
+                    <li className="">Не найдено</li>
+                </ul>
+            );
+        }
+
+        return <ul>{cities}</ul>;
+    }
 }
 
 class ComboBox extends Component {
@@ -32,100 +56,72 @@ class ComboBox extends Component {
         };
     }
 
-
-
     componentDidMount() {
-        fetch('http://localhost:3006/kladr.json').then((response) => {
-            this.setState({
-                preload: true
-            });
-            return response.json();
-        }).then((myBlob) => {
-            this.setState({
-                cities: myBlob.Cities,
-                preload: false
-            });
-        });
-
-
         this.positionMenu();
-
-        let data;
-        //fetch('http://localhost:3000/Cities').then((res) => {response = res.json()});
-        //'http://localhost:3006/kladr.json'
-
-
         window.onresize = () => this.positionMenu();
 
-        this.textInput.addEventListener('input', (e) => {
+        this.textInput.oninput = (e) => {
             const reg = new RegExp(e.target.value, 'i');
-            const citiesList = this.state.cities.filter((city, idx) => reg.test(city.City));
 
-            console.log(citiesList);
+            fetch('http://localhost:3006/kladr.json').then((response) => {
+                this.setState({
+                    preload: true
+                });
+                return response.json();
+            }).then((myBlob) => {
+                let filtredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
 
-            //if (citiesList.length) {
-            this.setState({
-                cities: citiesList,
-                listVisible: true,
-                focusedElementId: 0,
-                error: false
+                this.setState({
+                    cities: filtredCities,
+                    preload: false,
+                    listVisible: true,
+                    focusedElementId: 0,
+                    error: false
+                });
             });
-            //}
+        };
 
-
-        }, true);
-
-        this.textInput.onblur = () => {
+        this.textInput.onblur = (e) => {
             if (!this.state.cities.length) {
                 this.setState({
                     listVisible: false,
                     error: true
                 });
             }
+
+
+
+            console.log('this.state.cities', );
+
+            if (e.target.value === this.state.cities[0].City) {
+                e.target.value = this.state.cities[this.state.focusedElementId].City;
+            }
+
+            //e.target.value = this.state.cities[this.state.focusedElementId].City;
         };
 
-        this.textInput.onfocus = () => {
-            // const xhr = new XMLHttpRequest();
-            //
-            // xhr.open('GET', 'http://localhost:3006/kladr.json', true);
-            //
-            // this.setState({
-            //     preload: true
-            // });
-            //
-            // xhr.onload = function() {
-            //     data = this.responseText;
-            //     console.log('data', this);
-            //     const dataCities = JSON.parse(data).Cities;
-            //     this.setState({
-            //         cities: dataCities,
-            //         preload: false
-            //     });
-            // };
-            //
-            // xhr.send();
-            //
-            // requestData();
+        this.textInput.onfocus = (e) => {
+            const reg = new RegExp(e.target.value, 'i');
 
-            // fetch('http://localhost:3006/kladr.json').then((response) => {
-            //     this.setState({
-            //         preload: true
-            //     });
-            //     return response.json();
-            // }).then((myBlob) => {
-            //     console.log('myBlob', myBlob);
-            //     this.setState({
-            //         cities: myBlob.Cities,
-            //         preload: false
-            //     });
-            // });
+            fetch('http://localhost:3006/kladr.json').then((response) => {
+                this.setState({
+                    preload: true
+                });
+                return response.json();
+            }).then((myBlob) => {
+                let filteredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
 
-            this.setState({
-                listVisible: true
+                this.setState({
+                    cities: filteredCities,
+                    preload: false,
+                    listVisible: true,
+                    focusedElementId: 0,
+                    error: false
+                });
             });
         };
 
-        this.textInput.addEventListener('keydown', (e) => {
+        this.textInput.onkeydown = (e) => {
             switch (e.keyCode) {
                 case 40:
                     if (this.state.focusedElementId < this.state.cities.length - 1) {
@@ -146,18 +142,19 @@ class ComboBox extends Component {
                         listVisible: false
                     });
                     break;
+                case 13:
+                    this.setState({
+                        listVisible: false
+                    });
+
+                    if (this.state.cities.length) {
+                        e.target.value = this.state.cities[this.state.focusedElementId].City;
+                        this.nextInput.focus();
+                    }
+
+                    break;
             }
-
-            if (e.keyCode === 13) {
-                e.target.value = this.state.cities[this.state.focusedElementId].City;
-                this.setState({
-                    listVisible: false
-                });
-                this.nextInput.focus();
-            }
-        }, true);
-
-
+        };
     }
 
     shouldComponentUpdate(nextProps, nextState) {
@@ -183,22 +180,14 @@ class ComboBox extends Component {
     }
 
     positionMenu() {
-        console.log('positionMenu');
-
         if ((document.documentElement.clientHeight - this.textInput.getBoundingClientRect().bottom) < 200) {
-            console.log('1', this.selectMenu);
             this.selectMenu.classList.add('top');
         } else {
-            console.log('2', this.selectMenu);
             this.selectMenu.classList.remove('top');
         }
     }
 
     render() {
-        let cities = this.state.cities.map(
-            (city, idx) => <ListItem key={idx} idx={idx} focusedId={this.state.focusedElementId}>{city.City}</ListItem>
-        );
-
         return (
             <div className="form-wrapper">
                 <div className="autocomplete">
@@ -213,7 +202,9 @@ class ComboBox extends Component {
 
                             type="text"
                         />
-                        <p className="error-helper"></p>
+                        <p className="error-helper">
+                            Выберите значение из списка ниже
+                        </p>
                         <div className={'input-wrapper__state ' + ((this.state.preload) ? 'preload' : '')}>
                             <button
                                 className="select__toggle"
@@ -238,9 +229,10 @@ class ComboBox extends Component {
                             {display: (this.state.listVisible) ? 'block' : 'none'}
                         }
                     >
-                        <List id={this.state.focusedElementId}>
-                            {cities}
-                        </List>
+                        <List
+                            id={this.state.focusedElementId}
+                            cities={this.state.cities}
+                        />
                     </div>
                 </div>
                 <input

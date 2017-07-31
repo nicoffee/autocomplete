@@ -4,7 +4,7 @@
 }
 
 body {
-    font-family: "SegoeUI", Verdana, Tahoma, sans-serif;
+    font-family: "SegoeUI", Arial, SansSerif, sans-serif;
     font-size: 14px;
     line-height: 20px;
     color: #404040;
@@ -13,7 +13,7 @@ body {
 }
 
 body.no-scroll {
-    overflow: hidden;
+    //overflow-y: hidden;
 }
 
 input {
@@ -29,19 +29,19 @@ input {
     box-shadow: 0 -1px 0 0 rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.15), inset 0 1px 0 0 rgba(0, 0, 0, 0.05);
 }
 
-.input-wrapper .error-helper {
+.input-wrapper.error .error-helper {
+    display: block;
     color: red;
 }
 
 .input-wrapper.error input {
-    border-color: red;
+    border: 2px solid red;
+    box-shadow: none;
 }
 
 input:focus {
     opacity: 0.8;
 }
-
-
 
 ul {
     margin: 0;
@@ -55,7 +55,8 @@ ul li {
     line-height: 22px;
 }
 
-ul li:hover {
+ul li:hover,
+ul li.focused{
     color: #fff;
     background: #5199DB;
 }
@@ -69,6 +70,10 @@ input:focus {
     display: flex;
     flex-direction: column;
     align-items: center;
+}
+
+.error-helper {
+    display: none;
 }
 
 .select {
@@ -88,7 +93,7 @@ input:focus {
     position: absolute;
     top: 35px;
     width: 357px;
-    min-height: 200px;
+    /*min-height: 200px;*/
     max-height: 450px;
     background: #FFFFFF;
     box-shadow: 0 0 0 1px rgba(0,0,0,0.1), 0 3px 10px 0 rgba(0,0,0,0.2);
@@ -131,10 +136,6 @@ input:focus {
     width: 10px;
     height: 10px;
     fill: grey;
-}
-
-.form-wrapper {
-    padding-top: 750px;
 }
 
 .input-wrapper__state {
