@@ -27,11 +27,20 @@ class List extends Component {
                 </ListItem>
         );
 
-        if (!this.props.cities.length) {
+        if (!this.props.cities.length && !this.props.fail) {
             return (
                 <ul>
                     <li className="">Не найдено</li>
                 </ul>
+            );
+        }
+
+        if (this.props.fail) {
+            return (
+              <ul>
+                  <li className="">Что-то пошло не так. Проверьте соединение с интернетом и попробуйте еще раз</li>
+                  <li>Обновить</li>
+              </ul>
             );
         }
 
@@ -48,24 +57,24 @@ class ComboBox extends Component {
             listVisible: false,
             focusedElementId: -1,
             error: false,
-            preload: false
+            preload: false,
+            failedRequest: false
         };
     }
 
     componentDidMount() {
+        let cities = [];
         this.positionMenu();
         window.onresize = () => this.positionMenu();
 
-        this.textInput.oninput = (e) => {
-            const reg = new RegExp(e.target.value, 'i');
-
-            fetch('http://localhost:3006/kladr.json').then((response) => {
+        const request = (regexp) => {
+            fetch('http://localhost:3006/kladr12.json').then((response) => {
                 this.setState({
                     preload: true
                 });
                 return response.json();
             }).then((myBlob) => {
-                let filtredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
+                let filtredCities = myBlob.Cities.filter((city, idx) => regexp.test(city.City));
 
                 this.setState({
                     cities: filtredCities,
@@ -74,47 +83,118 @@ class ComboBox extends Component {
                     focusedElementId: 0,
                     error: false
                 });
+            }).catch((e) => {
+                console.log('err');
+
+                this.setState({
+                    failedRequest: true,
+                    preload: false
+                });
             });
+        };
+
+        // fetch('http://localhost:3006/kladr1.json').then((response) => {
+        //     setTimeout(this.setState({
+        //         preload: true
+        //     }), 1000);
+        //
+        //     return response.json();
+        // }).then((myBlob) => {
+        //     // let filteredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
+        //
+        //     cities = myBlob.Cities;
+        //
+        //     setTimeout(() => {
+        //         this.setState({
+        //         cities: cities,
+        //         preload: false,
+        //     })}, 1000);
+        // });
+
+        this.textInput.oninput = (e) => {
+            console.log(e);
+
+            const regexp = new RegExp(e.target.value, 'i');
+            request(regexp);
+
+            // this.setState({
+            //     cities: cities.filter((city, idx) => reg.test(city.City))
+            // });
+
+            // fetch('http://localhost:3006/kladr12.json').then((response) => {
+            //     this.setState({
+            //         preload: true
+            //     });
+            //     return response.json();
+            // }).then((myBlob) => {
+            //     let filtredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
+            //
+            //     this.setState({
+            //         cities: filtredCities,
+            //         preload: false,
+            //         listVisible: true,
+            //         focusedElementId: 0,
+            //         error: false
+            //     });
+            // }).catch(() => {
+            //     this.setState({
+            //         failedRequest: true,
+            //     });
+            // });
+        };
+
+        this.textInput.onfocus = (e) => {
+            const regexp = new RegExp(e.target.value, 'i');
+            request(regexp);
+
+            // this.setState({
+            //     cities: this.state.cities.filter((city, idx) => reg.test(city.City)),
+            //     focusedElementId: 0,
+            //     listVisible: true,
+            //     error: false
+            // });
+
+            // fetch('http://localhost:3006/kladr.json').then((response) => {
+            //     setTimeout(this.setState({
+            //         preload: true
+            //     }), 1000);
+            //
+            //     return response.json();
+            // }).then((myBlob) => {
+            //     console.log('myBlob.Cities', myBlob.Cities);
+            //
+            //     let filteredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
+            //
+            //     console.log('filteredCities', filteredCities);
+            //
+            //     setTimeout(() => {this.setState({
+            //         cities: filteredCities,
+            //         preload: false,
+            //         listVisible: true,
+            //         focusedElementId: 0,
+            //         error: false
+            //     })}, 1000);
+            // }).catch(function() {
+            //     this.setState({
+            //         failedRequest: true,
+            //     });
+            // });
         };
 
         this.textInput.onblur = (e) => {
             if (!this.state.cities.length) {
                 this.setState({
-                    listVisible: false,
-                    error: true
+                    error: true,
                 });
             } else {
-                // e.target.value = this.state.cities[this.state.focusedElementId].City;
-
                 if (e.target.value === this.state.cities[0].City) {
                     e.target.value = this.state.cities[this.state.focusedElementId].City;
                 }
-
-                // this.setState({
-                //     listVisible: false,
-                // });
             }
-        };
 
-        this.textInput.onfocus = (e) => {
-            const reg = new RegExp(e.target.value, 'i');
-
-            fetch('http://localhost:3006/kladr.json').then((response) => {
-                this.setState({
-                    preload: true
-                });
-                return response.json();
-            }).then((myBlob) => {
-                let filteredCities = myBlob.Cities.filter((city, idx) => reg.test(city.City));
-
-                this.setState({
-                    cities: filteredCities,
-                    preload: false,
-                    listVisible: true,
-                    focusedElementId: 0,
-                    error: false
-                });
-            });
+            setTimeout(() => this.setState({
+                listVisible: false
+            }), 100);
         };
 
         this.textInput.onkeydown = (e) => {
@@ -139,13 +219,15 @@ class ComboBox extends Component {
                     });
                     break;
                 case 13:
-                    this.setState({
-                        listVisible: false
-                    });
+                    if (!this.state.preload) {
+                        this.setState({
+                            listVisible: false
+                        });
 
-                    if (this.state.cities.length) {
-                        e.target.value = this.state.cities[this.state.focusedElementId].City;
-                        this.nextInput.focus();
+                        if (this.state.cities.length) {
+                            e.target.value = this.state.cities[this.state.focusedElementId].City;
+                            this.nextInput.focus();
+                        }
                     }
 
                     break;
@@ -168,15 +250,10 @@ class ComboBox extends Component {
     }
 
     handleClick(e, idx) {
-
-        console.log('e.target.innerHTML');
-
+        this.textInput.value = e.target.innerHTML
         this.setState({
-            listVisible: false,
             focusedElementId: idx
         });
-
-        this.textInput.value = e.target.innerHTML
     }
 
     stopPageScroll() {
@@ -241,6 +318,7 @@ class ComboBox extends Component {
                             id={this.state.focusedElementId}
                             cities={this.state.cities}
                             onClick={this.handleClick.bind(this)}
+                            fail={this.state.failedRequest}
                         />
                     </div>
                 </div>
