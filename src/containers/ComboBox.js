@@ -54,11 +54,11 @@ class ComboBox extends Component {
         this.textInput.onfocus = (e) => {
             if (!this.state.cities.length) {
                 this.fetchData();
+            } else {
+                this.setState({
+                    listVisible: true
+                });
             }
-
-            this.setState({
-                listVisible: true
-            });
 
             if (this.listItem) {
                 this.selectMenu.scrollTop = this.listItem.offsetTop;
@@ -128,8 +128,8 @@ class ComboBox extends Component {
 
     toggleList() {
         this.setState({
-            listVisible: true
-        });
+            listVisible: !this.state.listVisible
+        })
     }
 
     handleClick(e, idx) {
@@ -188,6 +188,7 @@ class ComboBox extends Component {
                             id={this.state.focusedElementId}
                             cities={this.state.cities}
                             onClick={this.handleClick.bind(this)}
+                            listVisible={this.state.listVisible}
                             fail={this.state.failedRequest}
                             fetchData={this.fetchData}
                             listRef={item => this.listItem = item}
@@ -198,7 +199,7 @@ class ComboBox extends Component {
                     ref={(input) => {
                         this.nextInput = input;
                     }}
-                    placeholder="Просто еще один input для тестирования"
+                    placeholder="Еще один input для тестирования"
                     type="text"
                 />
             </div>

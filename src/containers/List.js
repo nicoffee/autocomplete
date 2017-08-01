@@ -3,6 +3,28 @@ import ListItem from './../components/ListItem'
 
 class List extends Component {
     render() {
+        console.log('this.props.listVisible', this.props.listVisible);
+        if (!this.props.cities.length && this.props.listVisible) {
+            return (
+              <ul>
+                  <li className="error">
+                      Не найдено
+                  </li>
+              </ul>
+            );
+        }
+
+        if (this.props.fail) {
+            return (
+              <ul>
+                  <li className="error">
+                      Что-то пошло не так. Проверьте соединение с интернетом и попробуйте еще раз
+                  </li>
+                  <li onClick={() => this.props.fetchData()}>Обновить</li>
+              </ul>
+            );
+        }
+
         let cities = this.props.cities.map(
           (city, idx) => {
               if (this.props.id === idx) {
@@ -27,27 +49,6 @@ class List extends Component {
               </ListItem>
           }
         );
-
-        if (!this.props.cities.length && !this.props.fail) {
-            return (
-              <ul>
-                  <li className="error">
-                      Не найдено
-                  </li>
-              </ul>
-            );
-        }
-
-        if (this.props.fail) {
-            return (
-              <ul>
-                  <li className="error">
-                      Что-то пошло не так. Проверьте соединение с интернетом и попробуйте еще раз
-                  </li>
-                  <li onClick={() => this.props.fetchData()}>Обновить</li>
-              </ul>
-            );
-        }
 
         return <ul>{cities}</ul>;
     }
