@@ -2,22 +2,18 @@ import React, {Component} from 'react'
 
 const ListItem = (props) => {
     return (+props.idx === props.focusedId) ?
-        <li className="focused" onClick={props.onClick}>
+        <li
+            className="focused"
+            onClick={ (e) => props.onClick(e, props.idx) }
+        >
             {props.children}
-        </li> : <li onClick={props.onClick}>
+        </li> :
+        <li onClick={ (e) => props.onClick(e, props.idx) }>
             {props.children}
         </li>
 };
 
 class List extends Component {
-    constructor(props) {
-        super(props);
-    }
-
-    handleClick(e) {
-        console.log('click', e);
-    }
-
     render() {
         let cities = this.props.cities.map(
             (city, idx) =>
@@ -25,7 +21,7 @@ class List extends Component {
                     key={idx}
                     idx={idx}
                     focusedId={this.props.id}
-                    onClick={(e) => this.handleClick}
+                    onClick={this.props.onClick}
                 >
                     {city.City}
                 </ListItem>
@@ -87,17 +83,17 @@ class ComboBox extends Component {
                     listVisible: false,
                     error: true
                 });
+            } else {
+                // e.target.value = this.state.cities[this.state.focusedElementId].City;
+
+                if (e.target.value === this.state.cities[0].City) {
+                    e.target.value = this.state.cities[this.state.focusedElementId].City;
+                }
+
+                // this.setState({
+                //     listVisible: false,
+                // });
             }
-
-
-
-            console.log('this.state.cities', );
-
-            if (e.target.value === this.state.cities[0].City) {
-                e.target.value = this.state.cities[this.state.focusedElementId].City;
-            }
-
-            //e.target.value = this.state.cities[this.state.focusedElementId].City;
         };
 
         this.textInput.onfocus = (e) => {
@@ -171,6 +167,18 @@ class ComboBox extends Component {
         });
     }
 
+    handleClick(e, idx) {
+
+        console.log('e.target.innerHTML');
+
+        this.setState({
+            listVisible: false,
+            focusedElementId: idx
+        });
+
+        this.textInput.value = e.target.innerHTML
+    }
+
     stopPageScroll() {
         document.body.classList.add('no-scroll');
     }
@@ -232,6 +240,7 @@ class ComboBox extends Component {
                         <List
                             id={this.state.focusedElementId}
                             cities={this.state.cities}
+                            onClick={this.handleClick.bind(this)}
                         />
                     </div>
                 </div>
