@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import ComboBox from './components/ComboBox.js'
+import ComboBox from './containers/ComboBox.js'
 import './App.css';
 
 class App extends Component {
