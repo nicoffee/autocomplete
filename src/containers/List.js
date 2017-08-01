@@ -4,15 +4,28 @@ import ListItem from './../components/ListItem'
 class List extends Component {
     render() {
         let cities = this.props.cities.map(
-          (city, idx) =>
-            <ListItem
-              key={idx}
-              idx={idx}
-              focusedId={this.props.id}
-              onClick={this.props.onClick}
-            >
-                {city.City}
-            </ListItem>
+          (city, idx) => {
+              if (this.props.id === idx) {
+                  return <ListItem
+                    key={idx}
+                    idx={idx}
+                    focusedId={this.props.id}
+                    onClick={this.props.onClick}
+                    listRef={this.props.listRef}
+                  >
+                      {city.City}
+                  </ListItem>
+              }
+
+              return <ListItem
+                key={idx}
+                idx={idx}
+                focusedId={this.props.id}
+                onClick={this.props.onClick}
+              >
+                  {city.City}
+              </ListItem>
+          }
         );
 
         if (!this.props.cities.length && !this.props.fail) {
@@ -31,12 +44,7 @@ class List extends Component {
                   <li className="error">
                       Что-то пошло не так. Проверьте соединение с интернетом и попробуйте еще раз
                   </li>
-                  <li
-                    ref={(li) => {
-                      this.updateRequest = li;
-                  }}
-                    onClick={() => this.props.fetchData()}
-                  >Обновить</li>
+                  <li onClick={() => this.props.fetchData()}>Обновить</li>
               </ul>
             );
         }

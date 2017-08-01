@@ -5,7 +5,7 @@ class ComboBox extends Component {
     constructor() {
         super();
 
-        this.fetchData = (regexp = '') => {
+        this.fetchData = (regexp = / /) => {
             fetch('kladr.json').then((response) => {
                 this.setState({
                     preload: true,
@@ -13,12 +13,10 @@ class ComboBox extends Component {
                 });
                 return response.json();
             }).then((myBlob) => {
-                let filtredCities = myBlob.Cities.filter((city, idx) => regexp.test(city.City));
-
-                console.log('123');
+                let filteredCities = myBlob.Cities.filter((city, idx) => regexp.test(city.City));
 
                 setTimeout(() => {this.setState({
-                    cities: filtredCities,
+                    cities: filteredCities,
                     preload: false,
                     listVisible: true,
                     focusedElementId: 0,
@@ -54,8 +52,17 @@ class ComboBox extends Component {
         };
 
         this.textInput.onfocus = (e) => {
-            const regexp = new RegExp(e.target.value, 'i');
-            this.fetchData(regexp);
+            if (!this.state.cities.length) {
+                this.fetchData();
+            }
+
+            this.setState({
+                listVisible: true
+            });
+
+            if (this.listItem) {
+                this.selectMenu.scrollTop = this.listItem.offsetTop;
+            }
         };
 
         this.textInput.onblur = (e) => {
@@ -126,7 +133,7 @@ class ComboBox extends Component {
     }
 
     handleClick(e, idx) {
-        this.textInput.value = e.target.innerHTML
+        this.textInput.value = e.target.innerHTML;
         this.setState({
             focusedElementId: idx
         });
@@ -183,6 +190,7 @@ class ComboBox extends Component {
                             onClick={this.handleClick.bind(this)}
                             fail={this.state.failedRequest}
                             fetchData={this.fetchData}
+                            listRef={item => this.listItem = item}
                         />
                     </div>
                 </div>

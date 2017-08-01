@@ -9,14 +9,13 @@ body {
     line-height: 20px;
     color: #404040;
     padding-top: 20px;
-    height: 2000px;
 }
 
 input {
     min-height: 32px;
     width: 280px;
     padding-left: 8px;
-    padding-right: 27px;
+    padding-right: 8px;
     position: relative;
     border: none;
     border-radius: 1px;
@@ -81,6 +80,10 @@ ul li.error:hover {
     flex-direction: column;
     align-items: flex-start;
     margin-bottom: 500px;
+}
+
+.autocomplete input {
+    padding-right: 27px;
 }
 
 .autocomplete__input-wrapper {
