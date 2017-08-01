@@ -6,7 +6,7 @@ class ComboBox extends Component {
         super();
 
         this.fetchData = (regexp = '') => {
-            fetch('http://localhost:3006/kladr.json').then((response) => {
+            fetch('kladr.json').then((response) => {
                 this.setState({
                     preload: true,
                     listVisible: false
