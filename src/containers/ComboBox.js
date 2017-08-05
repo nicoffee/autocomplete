@@ -1,29 +1,28 @@
 import React, {Component} from 'react'
 import List from './List'
+import axios from 'axios';
 
 class ComboBox extends Component {
     constructor() {
         super();
 
         this.fetchData = (regexp = / /) => {
-            fetch('kladr.json').then((response) => {
-                this.setState({
-                    preload: true,
-                    listVisible: false
-                });
-                return response.json();
-            }).then((myBlob) => {
-                let filteredCities = myBlob.Cities.filter((city, idx) => regexp.test(city.City));
-
+            this.setState({
+                preload: true,
+                listVisible: false
+            });
+            axios.get('kladr.json')
+              .then((res) => {
+                let filteredCities = res.data.Cities.filter((city, idx) => regexp.test(city.City));
                 setTimeout(() => {this.setState({
                     cities: filteredCities,
                     preload: false,
-                    listVisible: true,
+                    listVisible: !this.state.error,
                     focusedElementId: 0,
                     failedRequest: false,
                     error: false
-                })}, 1000)
-            }).catch((e) => {
+                })}, 1000)})
+              .catch((e) => {
                 setTimeout(() => {this.setState({
                     failedRequest: true,
                     preload: false,
@@ -66,9 +65,10 @@ class ComboBox extends Component {
         };
 
         this.textInput.onblur = (e) => {
-            if (!this.state.cities.length) {
+            if (!this.state.cities.length || this.state.preload) {
                 this.setState({
                     error: true,
+                    listVisible: false
                 });
             } else {
                 if (e.target.value === this.state.cities[0].City) {
@@ -78,7 +78,7 @@ class ComboBox extends Component {
 
             setTimeout(() => this.setState({
                 listVisible: false
-            }), 100);
+            }), 200);
         };
 
         this.textInput.onkeydown = (e) => {
