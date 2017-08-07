@@ -2,25 +2,25 @@ import React, {Component} from 'react'
 import ListItem from './../components/ListItem'
 
 class List extends Component {
-    render() {
-        console.log('this.props.listVisible', this.props.listVisible);
-        if (!this.props.cities.length && this.props.listVisible) {
-            return (
-              <ul>
-                  <li className="error">
-                      Не найдено
-                  </li>
-              </ul>
-            );
-        }
 
+    render() {
         if (this.props.fail) {
             return (
               <ul>
                   <li className="error">
                       Что-то пошло не так. Проверьте соединение с интернетом и попробуйте еще раз
                   </li>
-                  <li onClick={() => this.props.fetchData()}>Обновить</li>
+                  <li onMouseDown={() => this.props.fetchData()}>Обновить</li>
+              </ul>
+            );
+        }
+
+        if (!this.props.cities.length && !this.props.fail) {
+            return (
+              <ul>
+                  <li className="error">
+                      Не найдено
+                  </li>
               </ul>
             );
         }
@@ -32,7 +32,7 @@ class List extends Component {
                     key={idx}
                     idx={idx}
                     focusedId={this.props.id}
-                    onClick={this.props.onClick}
+                    onMouseDown={this.props.onMouseDown}
                     listRef={this.props.listRef}
                   >
                       {city.City}
@@ -43,7 +43,7 @@ class List extends Component {
                 key={idx}
                 idx={idx}
                 focusedId={this.props.id}
-                onClick={this.props.onClick}
+                onMouseDown={this.props.onMouseDown}
               >
                   {city.City}
               </ListItem>

@@ -13,22 +13,32 @@ class ComboBox extends Component {
             });
             axios.get('kladr.json')
               .then((res) => {
-                let filteredCities = res.data.Cities.filter((city, idx) => regexp.test(city.City));
-                setTimeout(() => {this.setState({
-                    cities: filteredCities,
-                    preload: false,
-                    listVisible: !this.state.error,
-                    focusedElementId: 0,
-                    failedRequest: false,
-                    error: false
-                })}, 1000)})
+                  let filteredCities = res.data.Cities.filter((city, idx) => regexp.test(city.City));
+                  this.setState({
+                      cities: filteredCities,
+                      preload: true,
+                      listVisible: !this.state.error,
+                      focusedElementId: 0,
+                      failedRequest: false,
+                      error: false
+                  });
+                  setTimeout(() => {
+                      this.setState({
+                          preload: false
+                      })
+                  }, 1000)
+              })
               .catch((e) => {
-                setTimeout(() => {this.setState({
-                    failedRequest: true,
-                    preload: false,
-                    listVisible: true
-                })}, 1000);
-            });
+                  this.setState({
+                      failedRequest: true,
+                      listVisible: true
+                  });
+                  setTimeout(() => {
+                      this.setState({
+                          preload: false
+                      })
+                  }, 1000)
+              });
         };
 
         this.state = {
@@ -51,6 +61,10 @@ class ComboBox extends Component {
         };
 
         this.textInput.onfocus = (e) => {
+            if (this.state.focusedElementId) {
+                this.textInput.select();
+            }
+
             if (!this.state.cities.length) {
                 this.fetchData();
             } else {
@@ -65,20 +79,23 @@ class ComboBox extends Component {
         };
 
         this.textInput.onblur = (e) => {
-            if (!this.state.cities.length || this.state.preload) {
+            if (!this.state.cities.length && !this.state.preload) {
                 this.setState({
                     error: true,
-                    listVisible: false
                 });
             } else {
                 if (e.target.value === this.state.cities[0].City) {
                     e.target.value = this.state.cities[this.state.focusedElementId].City;
+                    this.setState({
+                        error: true,
+                        focusedElementId: 1
+                    });
                 }
             }
 
-            setTimeout(() => this.setState({
+            this.setState({
                 listVisible: false
-            }), 200);
+            })
         };
 
         this.textInput.onkeydown = (e) => {
@@ -114,16 +131,10 @@ class ComboBox extends Component {
                         }
                     }
                     break;
+                default:
+                    break;
             }
         };
-    }
-
-    shouldComponentUpdate(nextProps, nextState) {
-        if (this.state.focusedElementId !== nextState.focusedElementId) {
-            return true;
-        }
-
-        return true;
     }
 
     toggleList() {
@@ -135,7 +146,8 @@ class ComboBox extends Component {
     handleClick(e, idx) {
         this.textInput.value = e.target.innerHTML;
         this.setState({
-            focusedElementId: idx
+            focusedElementId: idx,
+            error: false
         });
     }
 
@@ -149,60 +161,59 @@ class ComboBox extends Component {
 
     render() {
         return (
-            <div className="form-wrapper">
-                <div className="autocomplete">
-                    <div className={"input-wrapper " + ((this.state.error) ? 'error' : '')}>
-                        <input
-                            placeholder="Введите или выберите из списка"
-                            ref={(input) => {
-                                this.textInput = input;
-                            }}
-                            type="text"
-                        />
-                        <p className="input-box__error-message">
-                            Выберите значение из списка
-                        </p>
-                        <div className={'input-wrapper__controls ' + ((this.state.preload) ? 'preload' : '')}>
-                            <button
-                                className="controls__toggle"
-                                onClick={this.toggleList.bind(this)}>
-                                <svg xmlns="http://www.w3.org/2000/svg" width="20.308" height="20.309"
-                                     viewBox="0 0 404.308 404.309">
-                                    <path d="M0 101.08h404.308l-202.157 202.149-202.151-202.149z"/>
-                                </svg>
-                            </button>
-                            <div className="controls__loader" />
-                        </div>
-                    </div>
-                    <div
-                        className="list-wrapper"
-                        ref={(div) => {
-                            this.selectMenu = div;
+          <div className="form-wrapper">
+              <div className="autocomplete">
+                  <div className={"input-wrapper " + ((this.state.error && !this.state.failedRequest) ? 'error' : '')}>
+                      <input
+                        placeholder="Введите или выберите из списка"
+                        ref={(input) => {
+                            this.textInput = input;
                         }}
-                        onMouseOver={this.stopPageScroll}
-                        onMouseLeave={this.startPageScroll}
-                        style={
-                            {display: (this.state.listVisible) ? 'block' : 'none'}
-                        }>
-                        <List
-                            id={this.state.focusedElementId}
-                            cities={this.state.cities}
-                            onClick={this.handleClick.bind(this)}
-                            listVisible={this.state.listVisible}
-                            fail={this.state.failedRequest}
-                            fetchData={this.fetchData}
-                            listRef={item => this.listItem = item}
-                        />
-                    </div>
-                </div>
-                <input
-                    ref={(input) => {
-                        this.nextInput = input;
+                        type="text"
+                      />
+                      <p className="input-box__error-message">
+                          Выберите значение из списка
+                      </p>
+                      <div className={'input-wrapper__controls ' + ((this.state.preload) ? 'preload' : '')}>
+                          <button
+                            className="controls__toggle"
+                            onClick={this.toggleList.bind(this)}>
+                              <svg xmlns="http://www.w3.org/2000/svg" width="20.308" height="20.309"
+                                   viewBox="0 0 404.308 404.309">
+                                  <path d="M0 101.08h404.308l-202.157 202.149-202.151-202.149z"/>
+                              </svg>
+                          </button>
+                          <div className="controls__loader"/>
+                      </div>
+                  </div>
+                  <div
+                    className="list-wrapper"
+                    ref={(div) => {
+                        this.selectMenu = div;
                     }}
-                    placeholder="Еще один input для тестирования"
-                    type="text"
-                />
-            </div>
+                    style={
+                        {display: (this.state.listVisible) ? 'block' : 'none'}
+                    }>
+                      <List
+                        id={this.state.focusedElementId}
+                        cities={this.state.cities}
+                        onMouseDown={this.handleClick.bind(this)}
+                        listVisible={this.state.listVisible}
+                        fail={this.state.failedRequest}
+                        fetchData={this.fetchData}
+                        listRef={item => this.listItem = item}
+                        preload={this.state.preload}
+                      />
+                  </div>
+              </div>
+              <input
+                ref={(input) => {
+                    this.nextInput = input;
+                }}
+                placeholder="Еще один input для тестирования"
+                type="text"
+              />
+          </div>
         );
     }
 }
